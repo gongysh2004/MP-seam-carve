@@ -112,8 +112,8 @@ public:
    * Add any helper methods you may need
    */
 
-  int* TraceHSeam(int**& values) const;
-  int* TraceVSeam(int**& values) const;
+  int* TraceHSeam(int** values) const;
+  int* TraceVSeam(int** values) const;
 
 private:
   ImagePPM image_;

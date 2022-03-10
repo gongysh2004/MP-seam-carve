@@ -62,10 +62,10 @@ int SeamCarver::GetEnergy(int row, int col) const {
 int* SeamCarver::GetVerticalSeam() const {
   // findMinPathDynamicProgramming():
   //   Values ← 2D array with height rows and width columns
-  int** vertical_values = new int*[height_];
-  for (int row = 0; row < height_; ++row)
-    vertical_values[row] = new int[width_];
 
+  int** vertical_values = (int**)malloc(sizeof(int*)*height_);
+  for (int row = 0; row < height_; ++row)
+    vertical_values[row] = (int*)malloc(sizeof(int)*width_);
   //   For each cell in the last row
   //       Values[cell_row][cell_col] ← E(cell_row, cell_col)
   for (int col = 0; col < width_; ++col) {
@@ -79,7 +79,7 @@ int* SeamCarver::GetVerticalSeam() const {
   //           E(cell_row, cell_col)
 
   int best = 0;
-  for (size_t row = height_ - 2; row >= 0; --row) {
+  for (int row = height_ - 2; row >= 0; --row) {
     for (int col = 0; col < width_; ++col) {
       if (col == 0) {
         best =
@@ -101,16 +101,19 @@ int* SeamCarver::GetVerticalSeam() const {
       vertical_values[row][col] = best + GetEnergy(row, col);
     }
   }
-
+  
+  std::cout << "tracevs " << std::endl;
   int * va = TraceVSeam(vertical_values);
-  for (int row = 0; row < height_; ++row) delete[] vertical_values[row];
-  delete[] vertical_values;
+  std::cout << "free seam " << std::endl;
+  for (int row = 0; row < height_; ++row) free(vertical_values[row]);
+  free(vertical_values);
   vertical_values = nullptr;
+  std::cout << "free seam done" << std::endl;
   return va;
   //   Return minimum cell of Values[0]
 }
 
-int* SeamCarver::TraceVSeam(int**& values) const {
+int* SeamCarver::TraceVSeam(int** values) const {
   int* vertical_array = new int[height_];
   int smallest_col_index = 0;
   // use the left most rule
@@ -221,7 +224,7 @@ int* SeamCarver::GetHorizontalSeam() const {
 }
 
 // trace horizontal seam
-int* SeamCarver::TraceHSeam(int**& values) const {
+int* SeamCarver::TraceHSeam(int** values) const {
   int* horizontal_array = new int[width_];
   int smallest_row_index = 0;
   // smallest at column 0
