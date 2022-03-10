@@ -101,8 +101,7 @@ int* SeamCarver::GetVerticalSeam() const {
       vertical_values[row][col] = best + GetEnergy(row, col);
     }
   }
-
-  int * va = TraceVSeam(vertical_values);
+  
   std::cout << "tracevs " << std::endl;
   int * va = TraceVSeam(vertical_values);
   std::cout << "free seam " << std::endl;
