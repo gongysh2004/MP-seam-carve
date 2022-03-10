@@ -102,7 +102,7 @@ void ImagePPM::CarveVerticalSeam(const int* vertical_delete) {
   int pos = 0;
   for (int row = 0; row < height_; row++) {
     for (int col = 0; col < width_; col++) {
-      if (col != vertical_delete[col]) {
+      if (col != vertical_delete[row]) {
         tmp_v[row][pos] = pixels_[row][col];
         pos++;
       }

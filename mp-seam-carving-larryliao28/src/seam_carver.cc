@@ -33,8 +33,8 @@ int SeamCarver::GetEnergy(int row, int col) const {
   // if (col >= width_ || col < 0) {
   //   throw std::out_of_range("column out of bounds");
   // }
-  Pixel top_pixel = image_.GetPixel((row + 1) % height_, col);
-  Pixel bottom_pixel = image_.GetPixel(row <= 0 ? height_ - 1 : row - 1, col);
+  Pixel top_pixel = image_.GetPixel( row==0? height_ -1: row-1 , col);
+  Pixel bottom_pixel = image_.GetPixel((row+1) % height_, col);
   Pixel right_pixel = image_.GetPixel(row, (col + 1) % width_);
   Pixel left_pixel = image_.GetPixel(row, col <= 0 ? width_ - 1 : col - 1);
   int vertical_pixel = (top_pixel.GetRed() - bottom_pixel.GetRed()) *
@@ -51,7 +51,14 @@ int SeamCarver::GetEnergy(int row, int col) const {
                              (left_pixel.GetBlue() - right_pixel.GetBlue());
   return vertical_pixel + horizontal_pixel;
 }
-
+  int SeamCarver::min(int a, int b) const{
+     return a <=b? a:b;
+  }
+  int SeamCarver::min(int a, int b, int c) const{
+     int min = this->min(a,b);
+     return this->min(min, c);
+     
+  }
 int* SeamCarver::GetVerticalSeam() const {
   // findMinPathDynamicProgramming():
   //   Values ← 2D array with height rows and width columns
@@ -76,46 +83,37 @@ int* SeamCarver::GetVerticalSeam() const {
     for (int col = 0; col < width_; ++col) {
       if (col == 0) {
         best =
-            vertical_values[row + 1][col] <= vertical_values[row + 1][col + 1]
-                ? vertical_values[row + 1][col]
-                : vertical_values[row + 1][col + 1];
+            this->min(vertical_values[row + 1][col], vertical_values[row + 1][col + 1]);
         vertical_values[row][col] = best + GetEnergy(row, col);
         continue;
       }
 
       if (col == width_ - 1) {
         best =
-            vertical_values[row + 1][col] <= vertical_values[row + 1][col - 1]
-                ? vertical_values[row + 1][col]
-                : vertical_values[row + 1][col - 1];
+            this->min(vertical_values[row + 1][col], vertical_values[row + 1][col - 1]);
         vertical_values[row][col] = best + GetEnergy(row, col);
         continue;
       }
 
-      if (vertical_values[row + 1][col] <= vertical_values[row + 1][col - 1] &&
-          vertical_values[row + 1][col] <= vertical_values[row + 1][col + 1]) {
-        best = vertical_values[row + 1][col];
-      } else if (vertical_values[row + 1][col - 1] <
-                     vertical_values[row + 1][col] &&
-                 vertical_values[row + 1][col - 1] <=
-                     vertical_values[row + 1][col + 1]) {
-        best = vertical_values[row + 1][col - 1];
-      } else {
-        best = vertical_values[row + 1][col + 1];
-      }
+      best = this->min(vertical_values[row + 1][col + 1], vertical_values[row + 1][col],
+                       vertical_values[row + 1][col - 1]);
 
       vertical_values[row][col] = best + GetEnergy(row, col);
     }
   }
 
-  return TraceVSeam(vertical_values);
-
+  int * va = TraceVSeam(vertical_values);
+  for (int row = 0; row < height_; ++row) delete[] vertical_values[row];
+  delete[] vertical_values;
+  vertical_values = nullptr;
+  return va;
   //   Return minimum cell of Values[0]
 }
 
 int* SeamCarver::TraceVSeam(int**& values) const {
   int* vertical_array = new int[height_];
   int smallest_col_index = 0;
+  // use the left most rule
   for (int col = 1; col < width_; ++col) {
     if (values[0][col] < values[0][smallest_col_index]) {
       smallest_col_index = col;
@@ -124,6 +122,7 @@ int* SeamCarver::TraceVSeam(int**& values) const {
   vertical_array[0] = smallest_col_index;
 
   for (int row = 0; row < height_ - 1; ++row) {
+    // for the left most col
     if (smallest_col_index == 0) {
       smallest_col_index = values[row + 1][smallest_col_index] <=
                                    values[row + 1][smallest_col_index + 1]
@@ -154,11 +153,6 @@ int* SeamCarver::TraceVSeam(int**& values) const {
       vertical_array[row + 1] = smallest_col_index + 1;
     }
   }
-
-  for (int row = 0; row < height_; ++row) delete[] values[row];
-  delete[] values;
-  values = nullptr;
-
   return vertical_array;
 }
 
@@ -178,7 +172,7 @@ int* SeamCarver::GetHorizontalSeam() const {
   for (int row = 0; row < height_; ++row)
     horizontal_values[row] = new int[width_];
 
-  // last row energy
+  // last col energy
   for (int row = 0; row < height_; ++row) {
     horizontal_values[row][width_ - 1] = GetEnergy(row, width_ - 1);
   }
@@ -195,10 +189,10 @@ int* SeamCarver::GetHorizontalSeam() const {
         continue;
       }
       if (row == height_ - 1) {  // need to fix it
-        best = horizontal_values[row][col + 1] <=
-                       horizontal_values[row - 1][col + 1]
-                   ? horizontal_values[row][col + 1]
-                   : horizontal_values[row - 1][col + 1];
+        best = horizontal_values[row-1][col + 1] <=
+                       horizontal_values[row][col + 1]
+                   ? horizontal_values[row -1][col + 1]
+                   : horizontal_values[row][col + 1];
         horizontal_values[row][col] = best + GetEnergy(row, col);
         continue;
       }
@@ -218,7 +212,12 @@ int* SeamCarver::GetHorizontalSeam() const {
       horizontal_values[row][col] = best + GetEnergy(row, col);
     }
   }
-  return TraceHSeam(horizontal_values);
+  int * hs = TraceHSeam(horizontal_values);
+  for (int row = 0; row < height_; ++row) delete[] horizontal_values[row];
+
+  delete[] horizontal_values;
+  horizontal_values = nullptr;
+  return hs;
 }
 
 // trace horizontal seam
@@ -264,10 +263,6 @@ int* SeamCarver::TraceHSeam(int**& values) const {
       horizontal_array[col + 1] = smallest_row_index + 1;
     }
   }
-  for (int row = 0; row < height_; ++row) delete[] values[row];
-
-  delete[] values;
-  values = nullptr;
   return horizontal_array;
 }
 

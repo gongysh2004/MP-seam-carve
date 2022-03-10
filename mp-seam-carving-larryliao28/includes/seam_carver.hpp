@@ -128,6 +128,8 @@ private:
   /**
    * Add any helper methods you may need
    */
+  int min(int a, int b) const;
+  int min(int a, int b, int c) const;
 };
 
 #endif
