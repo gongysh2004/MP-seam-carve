@@ -101,14 +101,11 @@ int* SeamCarver::GetVerticalSeam() const {
       vertical_values[row][col] = best + GetEnergy(row, col);
     }
   }
-  
-  std::cout << "tracevs " << std::endl;
+
   int * va = TraceVSeam(vertical_values);
-  std::cout << "free seam " << std::endl;
   for (int row = 0; row < height_; ++row) free(vertical_values[row]);
   free(vertical_values);
   vertical_values = nullptr;
-  std::cout << "free seam done" << std::endl;
   return va;
   //   Return minimum cell of Values[0]
 }
@@ -171,9 +168,10 @@ void SeamCarver::RemoveVerticalSeam() {
 
 int* SeamCarver::GetHorizontalSeam() const {
   // initialize horizontal board of energy
-  int** horizontal_values = new int*[height_];
+
+  int** horizontal_values = (int**)malloc(sizeof(int*)*height_);
   for (int row = 0; row < height_; ++row)
-    horizontal_values[row] = new int[width_];
+    horizontal_values[row] = (int*)malloc(sizeof(int)*width_);
 
   // last col energy
   for (int row = 0; row < height_; ++row) {
@@ -216,9 +214,8 @@ int* SeamCarver::GetHorizontalSeam() const {
     }
   }
   int * hs = TraceHSeam(horizontal_values);
-  for (int row = 0; row < height_; ++row) delete[] horizontal_values[row];
-
-  delete[] horizontal_values;
+  for (int row = 0; row < height_; ++row) free(horizontal_values[row]);
+  free(horizontal_values);
   horizontal_values = nullptr;
   return hs;
 }

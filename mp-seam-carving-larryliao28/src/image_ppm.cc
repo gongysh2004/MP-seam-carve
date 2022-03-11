@@ -99,15 +99,14 @@ void ImagePPM::CarveVerticalSeam(const int* vertical_delete) {
   for (int row = 0; row < height_; ++row) {
     tmp_v[row] = new Pixel[width_ - 1];
   }
-  int pos = 0;
   for (int row = 0; row < height_; row++) {
-    for (int col = 0; col < width_; col++) {
-      if (col != vertical_delete[row]) {
-        tmp_v[row][pos] = pixels_[row][col];
-        pos++;
+    for (int col = 0; col < width_-1; col++) {
+      if (col < vertical_delete[row]) {
+        tmp_v[row][col] = pixels_[row][col];
+      }else{
+        tmp_v[row][col] = pixels_[row][col+1];
       }
     }
-    pos = 0;
   }
   for (int row = 0; row < height_; ++row) delete[] pixels_[row];
   delete[] pixels_;
@@ -123,15 +122,14 @@ void ImagePPM::CarveHorizontalSeam(const int* horizontal_delete) {
   // std::cout << "a test";
 
   // std::cout << sizeof(horizontal_delete);
-  int pos = 0;
   for (int col = 0; col < width_; col++) {
-    for (int row = 0; row < height_; row++) {
-      if (row != horizontal_delete[row]) {
-        tmp[pos][col] = pixels_[row][col];
-        pos++;
-      }
+    for (int row = 0; row < height_ -1; row++) {
+      if (row < horizontal_delete[col]) {
+        tmp[row][col] = pixels_[row][col];
+      }else{
+        tmp[row][col] = pixels_[row+1][col];
+      } 
     }
-    pos = 0;
   }
   for (int row = 0; row < height_; ++row) delete[] pixels_[row];
   delete[] pixels_;
