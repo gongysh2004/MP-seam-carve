@@ -1,6 +1,6 @@
 #ifndef SEAM_CARVER_HPP
 #define SEAM_CARVER_HPP
-
+#include <string>
 #include "image_ppm.hpp"
 
 class SeamCarver {
@@ -114,6 +114,9 @@ public:
 
   int* TraceHSeam(int** values) const;
   int* TraceVSeam(int** values) const;
+  void Print(std::string header, int ** values, int width, int height) const;
+  void Print(std::string header, int * values, int width) const;
+  void PrintEnergy(std::string header) const;
 
 private:
   ImagePPM image_;
@@ -128,8 +131,10 @@ private:
   /**
    * Add any helper methods you may need
    */
-  int min(int a, int b) const;
-  int min(int a, int b, int c) const;
+  int Min(int a, int b) const;
+  int Min(int a, int b, int c) const;
+  int** Allocate2DArray(int width,  int  height) const;
+  void Free2DArray(int** &values, int  height) const;
 };
 
 #endif

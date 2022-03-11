@@ -63,7 +63,7 @@ public:
   /**
    * Add any helper methods you may need
    */
-
+  void PrintImageRgb(std::string header) const;
   void CarveVerticalSeam(const int* vertical_delete);
   void CarveHorizontalSeam(const int* horizontal_delete);
 

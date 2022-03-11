@@ -51,6 +51,21 @@ void ImagePPM::Clear() {
   pixels_ = nullptr;
 }
 
+void ImagePPM::PrintImageRgb(std::string header) const{
+  char *debug = std::getenv("DEBUG");
+  if(debug==nullptr) return;
+  std::cout << header << std::endl;
+  for (int row = 0; row < height_; row++)
+    {
+        for (int col = 0; col < width_; col++)
+        {
+           std::cout << pixels_[row][col].GetRed() << ","
+               << pixels_[row][col].GetGreen() << ","
+               << pixels_[row][col].GetBlue() << (col==width_-1? "":"\t");
+        }
+        std::cout << std::endl;
+    }
+}
 std::istream& operator>>(std::istream& is, ImagePPM& image) {
   image.Clear();
   std::string line;
